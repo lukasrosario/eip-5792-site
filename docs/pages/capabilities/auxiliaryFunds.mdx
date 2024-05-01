@@ -10,7 +10,7 @@ Defined in ERC-7682
 
 If a wallet can provide its users access to funds beyond those that can be accounted for by looking up balances onchain given the wallet's address, its response to a `wallet_getCapabilities` request should include, for each chain it can provide access to such funds on, an `auxiliaryFunds` object. This object shoud have a single field, `supported`, set to `true`.
 
-## Example
+#### Example
 
 ```ts twoslash
 // @noErrors
