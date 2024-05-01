@@ -1,28 +1,97 @@
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
+  title: 'EIP-5792',
+  titleTemplate: '%s · EIP-5792',
+  description: 'Next-gen wallet RPCs',
   theme: {
-    colorScheme: 'system',
+    accentColor: {
+      light: '#73F7FF',
+      dark: '#73F7FF',
+    },
     variables: {
       color: {
-        textAccent: { light: '#2394ff', dark: '#e9e9ea' },
-        backgroundDark: {light: '#ebeaee', dark: 'black'},
-        background: {light: '#f6f5f8', dark: 'black'}, //f6f5f8 /ebf1f8
-        heading: { light: 'black', dark: '#e9e9ea' },
-        text3: { light: 'black', dark: '#e9e9ea' },
-        background5: { light: '#dee8ff', dark: '#3c393f' },
-      }
-    }
+        background: {
+          light: 'white',
+          dark: '#151A26',
+        },
+        backgroundDark: {
+          light: '#F5F5F5',
+          dark: '#0F131E',
+        },
+        textAccent: {
+          light: '#050F19',
+          dark: 'white',
+        },
+      },
+    },
   },
-  title: 'EIP-5792',
   sidebar: [
+    {
+      text: 'Introduction',
+      link: '/introduction',
+    },
     {
       text: 'Getting Started',
       link: '/getting-started',
     },
-    {
-      text: 'Example',
-      link: '/example',
+    { 
+      text: 'Reference', 
+      collapsed: false, 
+      items: [ 
+        { 
+          text: 'wallet_getCapabilities', 
+          link: '/reference/getCapabilities', 
+        }, 
+        { 
+          text: 'wallet_sendCalls', 
+          link: '/reference/sendCalls', 
+        }, 
+        { 
+          text: 'wallet_getCallsStatus', 
+          link: '/reference/getCallsStatus', 
+        }, 
+        { 
+          text: 'wallet_showCallsStatus', 
+          link: '/reference/showCallsStatus', 
+        },
+      ], 
+    },
+    { 
+      text: 'Capabilities', 
+      collapsed: false, 
+      items: [ 
+        { 
+          text: 'atomicBatch', 
+          link: '/capabilities/atomicBatch', 
+        }, 
+        { 
+          text: 'paymasterService', 
+          link: '/capabilities/paymasterService', 
+        }, 
+        { 
+          text: 'auxiliaryFunds', 
+          link: '/capabilities/auxiliaryFunds', 
+        }, 
+      ], 
+    },
+    { 
+      text: 'Ecosystem', 
+      collapsed: false, 
+      items: [ 
+        { 
+          text: 'Wallets', 
+          link: '/ecosystem/wallets', 
+        },
+        {
+          text: 'Tools',
+          link: '/ecosystem/tools',
+        },
+        { 
+          text: 'Apps', 
+          link: '/ecosystem/apps', 
+        },
+      ], 
     },
   ],
 })

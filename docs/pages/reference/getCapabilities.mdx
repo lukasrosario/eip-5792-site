@@ -1,0 +1,58 @@
+# wallet_getCapabilities
+
+Allows an application to request capabilities from a wallet (e.g. batch transactions, paymaster communication).
+
+## Example Usage
+
+```ts twoslash
+// @noErrors
+provider.request({
+  method: 'wallet_getCapabilities',
+  params: ['0xd46e8dd67c5d32be8058bb8eb970870f07244567']
+})
+// @log: {
+// @log:   "0x2105": {
+// @log:     atomicBatch: {
+// @log:       supported: true,
+// @log:     }
+// @log:   }
+// @log: }
+```
+
+## Parameters
+
+* `[Address]`
+
+An array with a single element: the wallet address you are requesting the capabilities of.
+
+### Example
+
+```json
+["0xd46e8dd67c5d32be8058bb8eb970870f07244567"]
+```
+
+## Returns
+
+Per chain ID (in hex), capabilities are returned in key/value pairs, with the key naming a capability and a value conforming to a shape defined for that name.
+
+### Example
+
+Note that the capabilities below are for illustrative purposes. The capabilities returned should reflect the ones actually supported by the wallet.
+
+```json
+{
+  "0x2105": {
+    "paymasterService": {
+      "supported": true
+    },
+    "sessionKeys": {
+      "supported": true
+    }
+  },
+  "0x14A34": {
+    "paymasterService": {
+      "supported": true
+    }
+  }
+}
+```

@@ -1,0 +1,19 @@
+# wallet_showCallsStatus
+
+Requests that a wallet shows information about a given call bundle that was sent with `wallet_sendCalls`. This method does not return anything.
+
+## Example Usage
+
+```ts twoslash
+// @noErrors
+provider.request({
+  method: 'wallet_showCallsStatus',
+  params: ['0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331']
+})
+```
+
+## Parameters
+
+* `[string]` 
+
+An array with a single element: a call bundle identifier returned by a `wallet_sendCalls` call.

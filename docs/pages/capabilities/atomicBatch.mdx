@@ -1,0 +1,26 @@
+# `atomicBatch` Capability
+
+The `atomicBatch` capability indicates to an app that a given wallet is able to execute multiple calls submitted via `wallet_sendCalls` atomically as part of a single transaction.
+
+Defined in EIP-5792.
+
+## Specification
+
+If a wallet can submit multiple calls as part of a single transaction, its response to a `wallet_getCapabilities` request should include, for each chain it can submit multiple calls atomically on, an `atomicBatch` object. This object shoud have a single field, `supported`, set to `true`.
+
+## Example
+
+```ts twoslash
+// @noErrors
+provider.request({
+  method: 'wallet_getCapabilities',
+  params: ['0xd46e8dd67c5d32be8058bb8eb970870f07244567']
+})
+// @log: {
+// @log:   "0x2105": {
+// @log:     atomicBatch: {
+// @log:       supported: true,
+// @log:     }
+// @log:   }
+// @log: }
+```

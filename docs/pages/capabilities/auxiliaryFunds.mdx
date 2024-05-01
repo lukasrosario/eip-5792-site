@@ -1,0 +1,32 @@
+# `auxiliaryFunds` Capability
+
+Allows wallets to indicate to apps that they have access to funds beyond those that can be accounted for by looking up balances onchain given the wallet's address.
+
+Defined in ERC-7682
+
+## Specification
+
+### Wallet
+
+If a wallet can provide its users access to funds beyond those that can be accounted for by looking up balances onchain given the wallet's address, its response to a `wallet_getCapabilities` request should include, for each chain it can provide access to such funds on, an `auxiliaryFunds` object. This object shoud have a single field, `supported`, set to `true`.
+
+## Example
+
+```ts twoslash
+// @noErrors
+provider.request({
+  method: 'wallet_getCapabilities',
+  params: ['0xd46e8dd67c5d32be8058bb8eb970870f07244567']
+})
+// @log: {
+// @log:   "0x2105": {
+// @log:     auxiliaryFunds: {
+// @log:       supported: true,
+// @log:     }
+// @log:   }
+// @log: }
+```
+
+### App
+
+If a wallet has indicated `auxiliaryFunds` support as described above, your app should not block users from taking actions on the basis of asset balance checks.

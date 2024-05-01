@@ -13,5 +13,9 @@
     "react-dom": "latest",
     "typescript": "latest",
     "vocs": "latest"
+  },
+  "devDependencies": {
+    "viem": "^2.9.29",
+    "wagmi": "^2.7.1"
   }
 }
