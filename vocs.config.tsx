@@ -1,5 +1,4 @@
 import { defineConfig } from 'vocs'
-import { Analytics } from '@vercel/analytics/react';
 
 export default defineConfig({
   title: 'EIP-5792',
@@ -7,7 +6,12 @@ export default defineConfig({
   description: 'Next-gen wallet RPCs',
   head() {
     return (
-      <Analytics />
+      <>
+        <script
+          dangerouslySetInnerHTML={{ __html: 'window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };'}}
+        />
+        <script defer src="/_vercel/insights/script.js" />
+      </>
     )
   },
   theme: {
