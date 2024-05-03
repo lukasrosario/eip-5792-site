@@ -1,9 +1,15 @@
 import { defineConfig } from 'vocs'
+import { Analytics } from '@vercel/analytics/react';
 
 export default defineConfig({
   title: 'EIP-5792',
   titleTemplate: '%s · EIP-5792',
   description: 'Next-gen wallet RPCs',
+  head() {
+    return (
+      <Analytics />
+    )
+  },
   theme: {
     accentColor: {
       light: '#73F7FF',
