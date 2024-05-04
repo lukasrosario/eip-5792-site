@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'EIP-5792',
   titleTemplate: '%s · EIP-5792',
   description: 'Next-gen wallet RPCs',
+  ogImageUrl: 'https://vocs.dev/api/og?title=%title&description=%description',
   head() {
     return (
       <>
