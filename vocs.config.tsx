@@ -37,6 +37,9 @@ export default defineConfig({
       },
     },
   },
+  topNav: [ 
+    { text: 'EIP', link: 'https://eips.ethereum.org/EIPS/eip-5792' }, 
+  ], 
   sidebar: [
     {
       text: 'Introduction',
