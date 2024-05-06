@@ -24,25 +24,26 @@ See the [reference section](./reference/getCapabilities) for details on how thes
 
 ## Apps
 
-The easiest way for apps to start using EIP-5792 is to use Wagmi and the experimental EIP-5792 viem actions.
+The easiest way for apps to start using EIP-5792 is to use Wagmi and the experimental EIP-5792 Wagmi hooks.
 
-```ts twoslash
-import { useWalletClient } from 'wagmi'
-import { walletActionsEip5792 } from 'viem/experimental'
- 
-const { data: walletClient } = useWalletClient()
+```ts twoslash [App.tsx]
+// @filename: App.tsx
+import React from 'react'
+// ---cut---
+import { useCapabilities } from 'wagmi/experimental'
 
-if (walletClient) {
-  const client = walletClient.extend(walletActionsEip5792())
-  const capabilities = await client.getCapabilities()
-// @log: {
-// @log:   8453: {
-// @log:      atomicBatch: {
-// @log:        supported: true,
-// @log:      },
-// @log:    }
-// @log: }
+function App() {
+  const { data: capabilities } = useCapabilities() // [!code hl]
+// @log:   {
+// @log:     84532: {
+// @log:       atomicBatch: {
+// @log:         supported: true,
+// @log:       },
+// @log:     }  
+// @log:   }
+
+  return <div />
 }
 ```
 
-See the [viem documentation](https://viem.sh/experimental) for more.
+See the [Wagmi documentation](https://wagmi.sh/react/api/hooks/useCapabilities) for more.
