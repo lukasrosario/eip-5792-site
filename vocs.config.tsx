@@ -40,6 +40,12 @@ export default defineConfig({
   topNav: [ 
     { text: 'EIP', link: 'https://eips.ethereum.org/EIPS/eip-5792' }, 
   ], 
+  socials: [
+    { 
+      icon: 'github', 
+      link: 'https://github.com/lukasrosario/eip-5792-site', 
+    }, 
+  ],
   sidebar: [
     {
       text: 'Introduction',
