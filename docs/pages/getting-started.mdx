@@ -6,25 +6,36 @@ For a wallet to be EIP-5792 compliant, it must implement support for the four ne
 
 * ### `wallet_getCapabilities`
 
-  * Returns, per chain ID, the capabilities a wallet supports. An example of a capability is `atomicBatch`, which specifies that a wallet can submit multiple calls as part of a single transaction.
+  * Returns what capabilities a wallet supports for specific chains. For example, a wallet might support atomic batching on one chain but not another. Some capabilities (like flow control) might be supported across all chains.
+  * The wallet should return a `4100 Unauthorized` error if the user hasn't authorized the connection.
 
 * ### `wallet_sendCalls`
 
-  * Requests that a wallet submits a batch of calls. This method also supports communicating with a wallet about capabilities it supports. 
+  * Requests that a wallet submits a batch of calls. Apps can specify capabilities they want to use (like atomic batching or paymasters) and mark them as optional or required.
+  * The wallet must reject requests that include unsupported required capabilities.
+  * Apps can provide their own unique ID (up to 4096 bytes) for the batch, or let the wallet generate one.
 
 * ### `wallet_getCallsStatus`
 
-  * Returns the status of a call batch that was sent via `wallet_sendCalls`. This method returns a subset of the fields that `eth_getTransactionReceipt` returns, excluding any fields that may differ across wallet implementations.
+  * Returns the status and receipts for a batch of calls.
+  * Status codes indicate the batch state:
+    * 100 - Pending: Batch received but not completed
+    * 200 - Confirmed: Batch included onchain without reverts
+    * 400 - Failed: Batch not included and wallet will not retry
+    * 500 - Reverted: Batch completely reverted
+    * 600 - Partial: Batch partially reverted
 
 * ### `wallet_showCallsStatus`
 
-  * Requests that a wallet shows information about a given call bundle that was sent with `wallet_sendCalls`.
+  * Requests that a wallet displays information about a given call batch.
+  * Returns nothing if successful, or an error if the batch ID is unknown.
 
-See the [reference section](./reference/getCapabilities) for details on how these should be implemented.
+See the [reference section](/reference/getCapabilities) for detailed implementation requirements.
 
 ## Apps
 
-The easiest way for apps to start using EIP-5792 is to use Wagmi and the experimental EIP-5792 Wagmi hooks.
+The easiest way for apps to start using EIP-5792 is to use Wagmi and the experimental EIP-5792 Wagmi hooks. For example, the following fetches the connected wallet's capabilities:
+
 
 ```ts twoslash [App.tsx]
 // @filename: App.tsx
@@ -35,17 +46,55 @@ import { useCapabilities } from 'wagmi/experimental'
 function App() {
   const { data: capabilities } = useCapabilities() // [!code hl]
 // @log:   {
-// @log:     84532: {
-// @log:       atomicBatch: {
-// @log:         supported: true,
-// @log:       },
-// @log:     }  
+// @log:     "0x0": {
+// @log:       "flow-control": {
+// @log:         "supported": true
+// @log:       }
+// @log:     },
+// @log:     "0x1": {
+// @log:       "atomicBatch": {
+// @log:         "supported": true
+// @log:       }
+// @log:     }
 // @log:   }
 
   return <div />
 }
 ```
 
-See the [Wagmi documentation](https://wagmi.sh/react/api/hooks/useCapabilities) for more.
+See the [Wagmi documentation](https://wagmi.sh/react/api/hooks/useCapabilities) for more, or alternatively, see thirdweb's [EIP-5792 hooks](https://portal.thirdweb.com/references/typescript/v5/hooks#eip5792).
 
-Alternatively, see thirdweb's [EIP-5792 hooks](https://portal.thirdweb.com/references/typescript/v5/hooks#eip5792).
+While not all wallets are EIP-5792 compliant, apps can use the `wallet_getCapabilities` method to check if the user's connected wallet supports EIP-5792, falling back to a legacy method if it doesn't:
+
+```ts twoslash filename="demo.ts"
+import { http, createConfig } from '@wagmi/core'
+import { mainnet } from '@wagmi/core/chains'
+import { getCapabilities, sendCalls } from '@wagmi/core/experimental'
+import { parseEther } from 'viem'
+
+const config = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http()
+  },
+})
+
+const capabilities = await getCapabilities(config)
+
+if (capabilities) {
+  const id = await sendCalls(config, {
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ]
+})
+} else {
+  console.log('the connected wallet does not support EIP-5792')
+}
+```

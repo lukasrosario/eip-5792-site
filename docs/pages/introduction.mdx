@@ -2,6 +2,34 @@
 
 ## What is EIP-5792?
 
-EIP-5792 introduces new JSON-RPC methods for communication between apps and wallets.
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) adds new JSON-RPC methods to the wallet interface. These methods will enable applications to send multiple calls to a user's wallet. These calls can be enhanced by `capabilities` (such as paymasters), if they are supported by the wallet.
 
-These new RPC methods unlock the ability for apps to make use of features available in newer wallets. For example, submitting multiple onchain calls as part of a single transaction or sponsoring users' transactions via ERC-4337 paymasters.
+More specifically, this introduces a `wallet_sendCalls` method, which allows applications to submit multiple onchain calls in a single transaction (with additional methods to check the status of submitted calls and display call information).
+
+Meanwhile `wallet_getCapabilities` can be called by applications to establish what capabilities are supported by the wallet. These capabilities can then be passed by applications when sending calls to be executed by the wallet.
+
+## What does that mean for users?
+
+End users will no longer need to manually execute multiple transactions one by one. The canonical example is the "approve and transfer" flow for ERC-20 tokens, which currently requires two transactions, and necessitates a disorienting UI, particularly for users who are new to the space. User interfaces can be simpler and more intuitive.
+
+This obviously also simplifies things for app developers and designers, who will no longer need to create those complex interfaces. And app developers will no longer need to "guess" what a given wallet is capable of.
+
+For wallets, batched calls provide more context on the application's intent, enabling richer and more informative confirmation dialogs, rather than looking at each transaction one by one.
+
+For both sides, capabilities establish a foundation for iteratively adding new functionality over time to further improve and streamline the user experience.
+
+## Why now?
+
+The approaching [Pectra](https://ethereum.org/en/roadmap/pectra) upgrade includes [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702), which will enable Externally Owned Accounts (EOAs) to set their address to be represented by a code of an existing smart contract. This means that any account on Ethereum will be able to make batched calls (assuming the EOA's designated smart contract supports it).
+
+This is a transformative unlock for user experience, but for end-users to benefit, applications need to access that new capability. That is where EIP-5792 comes in.
+
+The time is now!
+
+## What is the status of this EIP?
+
+This EIP is currently in "Review", and the team expect to move to "Final Call" soon. There is already significant support for the EIP across [wallets](/ecosystem/wallets) and [tools](/ecosystem/tools).
+
+## How can I get involved?
+
+Review the [EIP](https://eips.ethereum.org/EIPS/eip-5792), join the conversation on [Ethereum Magicians](https://ethereum-magicians.org/t/eip-5792-wallet-function-call-api/11374) and join the [Telegram group](<TODO>).

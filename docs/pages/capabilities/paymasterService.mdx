@@ -1,16 +1,22 @@
 # `paymasterService` Capability
 
+:::warning
+This capability is not yet confirmed, but is provided for illustrative purposes.
+:::
+
 A capability for apps to communicate with wallets about ERC-4337 paymaster web services.
 
-Defined in ERC-7677.
+Defined in [ERC-7677](https://eips.ethereum.org/EIPS/eip-7677).
 
 ## Specification
 
 ### App
 
-If you want to sponsor your users' transactions, you can do so by passing a paymaster service URL along with `wallet_sendCalls` requests. Specifically, you will need to include a `paymasterService` object in `capabilities`. This object should have a single field, `url`, that points to your paymaster service.
+If you want to sponsor your users' transactions, you can do so by passing paymaster service URLs along with `wallet_sendCalls` requests. You'll need to include a `paymasterService` object in `capabilities` that maps chain IDs to paymaster service configurations.
 
-It's important to note that the URL you provide must be ERC-7677-compliant. If a connected wallet supports paymaster services, it will communicate with the provided URL according to ERC-7677 to get paymaster-related user operation fields.
+For each chain, you can specify:
+- `url`: The paymaster service URL for that chain
+- `context`: Additional data defined by the paymaster service provider
 
 #### Example
 
@@ -27,34 +33,37 @@ provider.request({
         to: '0xd46e8dd67c5d32be8058bb8eb970870f07244567',
         value: '0x9184e72a',
         data: '0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675'
-      },
-      {
-        to: '0xd46e8dd67c5d32be8058bb8eb970870f07244567',
-        value: '0x182183',
-        data: '0xfbadbaf01'
       }
     ],
     capabilities: {
       paymasterService: {
-        url: 'https://your-paymaster-service.xyz'
+        "0x01": {
+          url: "https://paymaster.example.com",
+          context: {
+            // Illustrative context field. These should be defined by service providers.
+            policyId: "962b252c-a726-4a37-8d86-333ce0a07299"
+          }
+        }
       }
     }
   }]
 })
 ```
 
+:::warning
+For security, consider proxying paymaster service calls through your backend to protect API keys.
+:::
+
 ### Wallet
 
-To support the `paymasterService` capability, a wallet must do two things:
+To support the `paymasterService` capability, a wallet must:
 
-1. Indicate it can leverage paymaster services as part of its response to a `wallet_getCapabilities` request.
-2. Communicate with the paymaster service according to ERC-7677 if a `wallet_sendCalls` request includes a paymaster service URL.
+1. Indicate support in `wallet_getCapabilities` responses
+2. Communicate with paymaster services according to ERC-7677 when handling `wallet_sendCalls` requests
 
 #### `wallet_getCapabilities` Behavior
 
-If a wallet is able to make use of paymaster web services to sponsor a user's call bundle, it should indicate this as part of its response to a `wallet_getCapabilities` request. Specifically, for each chain the wallet can use paymaster services on, its response to `wallet_getCapabilities` should include a `paymasterService` object. This object shoud have a single field, `supported`, set to `true`.
-
-##### Example
+Wallets should indicate paymaster service support per chain in their capabilities response:
 
 ```ts twoslash
 // @noErrors
@@ -64,8 +73,8 @@ provider.request({
 })
 // @log: {
 // @log:   "0x2105": {
-// @log:     paymasterService: {
-// @log:       supported: true,
+// @log:     "paymasterService": {
+// @log:       "supported": true
 // @log:     }
 // @log:   }
 // @log: }
@@ -73,10 +82,18 @@ provider.request({
 
 #### `wallet_sendCalls` Behavior
 
-As outlined above, apps that wish to sponsor their users' transactions will provide a `paymasterService` capability object in their `wallet_sendCalls` requests. This `paymasterService` capability will have a `url` field, which indicates where wallets should send ERC-7677 paymaster RPC requests to.
+When processing a `wallet_sendCalls` request with a `paymasterService` capability, wallets need to:
 
-Wallets will need to make two RPC requests to this URL:
-1. `pm_getPaymasterStubData`
-    * Returns dummy paymaster values to be used during gas estimation.
-2. `pm_getPaymasterData`
-    * Returns real paymaster values to be used during user operation submission.
+1. Call `pm_getPaymasterStubData` to get stub values for gas estimation
+   - This returns paymaster fields and optional sponsor info
+   - May include gas estimates specific to the paymaster
+   - May indicate if `pm_getPaymasterData` can be skipped
+
+2. Call `pm_getPaymasterData` to get final paymaster values (unless skipped)
+   - This provides the actual paymaster fields to use in the user operation
+
+The wallet must detect which entrypoint version is being used and handle the appropriate paymaster fields (e.g., `paymasterAndData` for v0.6 or separate `paymaster`/`paymasterData` for v0.7).
+
+:::note
+Wallets may allow users to select different paymasters than those provided by apps. Applications should not assume their specified paymaster will be used.
+:::
