@@ -57,10 +57,6 @@ export default defineConfig({
       link: "/getting-started",
     },
     {
-      text: "Future Development",
-      link: "/future-development",
-    },
-    {
       text: "Reference",
       collapsed: false,
       items: [
@@ -111,6 +107,10 @@ export default defineConfig({
         {
           text: "flowControl",
           link: "/capabilities/flowControl",
+        },
+        {
+          text: "auxiliaryFunds",
+          link: "/capabilities/auxiliaryFunds",
         },
       ],
     },
