@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vocs dev",
     "build": "vocs build",
+    "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
   "dependencies": {
@@ -12,10 +13,10 @@
     "react": "latest",
     "react-dom": "latest",
     "typescript": "latest",
-    "vocs": "latest"
+    "vocs": "^1"
   },
   "devDependencies": {
-    "viem": "^2.9.29",
-    "wagmi": "^2.8.1"
+    "viem": "^2.23.5",
+    "wagmi": "^2.14.12"
   }
 }
