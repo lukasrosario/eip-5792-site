@@ -2,9 +2,9 @@
 
 ## What is EIP-5792?
 
-[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) adds new JSON-RPC methods that enable applications to send multiple calls to a user's wallet. These calls can be enhanced by `capabilities` (such as paymasters), if they are supported by the wallet.
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) enables applications to ask a wallet to process a batch of onchain write calls and to check on the status of those calls. These calls can be enhanced by `capabilities` (such as paymasters), if they are supported by the wallet.
 
-More specifically, this introduces a `wallet_sendCalls` method, which allows applications to submit multiple onchain calls in a single transaction (with additional methods to check the status of submitted calls and display call information).
+More specifically, this introduces a `wallet_sendCalls` method (with additional methods to check the status of submitted calls and display call information).
 
 Meanwhile `wallet_getCapabilities` can be called by applications to establish what capabilities are supported by the wallet. These capabilities can then be passed by applications when sending calls to be executed by the wallet.
 
