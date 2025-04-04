@@ -1,0 +1,42 @@
+# `atomic` Capability
+
+The `atomic` capability specifies how a wallet will execute batches of transactions requested through the `wallet_sendCalls` method. This capability is expressed separately for each chain and should be interpreted as a guarantee only for batches of transactions on that chain.
+
+## Specification
+
+### Wallet
+
+If a wallet supports atomic execution of batches on a given chain, its response to a `wallet_getCapabilities` request should include an `atomic` field set to `true` for that chain. If the wallet does not support atomic execution, it should set `atomic` to `false`.
+
+#### Example
+
+```ts twoslash
+// @noErrors
+provider.request({
+  method: 'wallet_getCapabilities',
+  params: ['0xd46e8dd67c5d32be8058bb8eb970870f07244567']
+})
+// @log: {
+// @log:   "0x2105": {
+// @log:     "atomic": true
+// @log:   },
+// @log:   "0x14A34": {
+// @log:     "atomic": false
+// @log:   }
+// @log: }
+```
+
+### App
+
+When sending a batch of calls using `wallet_sendCalls`, apps can specify their atomicity requirements using the `atomicRequired` field:
+
+* If `atomicRequired` is set to `true`:
+  * The wallet MUST execute all calls atomically and contiguously
+  * The wallet MUST reject the request if it cannot guarantee atomic execution
+* If `atomicRequired` is set to `false`:
+  * The wallet MUST execute calls sequentially (one after another)
+  * The calls need not be contiguous (other transactions may be interleaved)
+  * Some calls may fail independently
+  * The wallet MAY still execute the batch atomically if it supports it
+
+Apps should check the wallet's capabilities using `wallet_getCapabilities` before sending requests with `atomicRequired: true` to ensure the wallet supports atomic execution on the target chain. 

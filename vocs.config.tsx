@@ -101,6 +101,10 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
+          text: "atomic",
+          link: "/capabilities/atomic",
+        },
+        {
           text: "paymasterService",
           link: "/capabilities/paymasterService",
         },

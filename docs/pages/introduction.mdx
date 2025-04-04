@@ -2,9 +2,9 @@
 
 ## What is EIP-5792?
 
-[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) enables applications to ask a wallet to process a batch of onchain write calls and to check on the status of those calls. These calls can be enhanced by `capabilities` (such as paymasters), if they are supported by the wallet.
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) enables applications to ask a wallet to process a batch of onchain write calls and to check on the status of those calls. These calls can be enhanced by `capabilities` (such as atomic execution or paymasters), if they are supported by the wallet.
 
-More specifically, this introduces a `wallet_sendCalls` method (with additional methods to check the status of submitted calls and display call information).
+More specifically, this introduces a `wallet_sendCalls` method (with additional methods to check the status of submitted calls and display call information). Apps can specify whether they require atomic execution of calls using the `atomicRequired` field.
 
 Meanwhile `wallet_getCapabilities` can be called by applications to establish what capabilities are supported by the wallet. These capabilities can then be passed by applications when sending calls to be executed by the wallet.
 
@@ -14,7 +14,7 @@ End users will no longer need to manually execute multiple transactions one by o
 
 This obviously also simplifies things for app developers and designers, who will no longer need to create those complex interfaces. And app developers will no longer need to "guess" what a given wallet is capable of.
 
-For wallets, batched calls provide more context on the application's intent, enabling richer and more informative confirmation dialogs, rather than looking at each transaction one by one.
+For wallets, batched calls provide more context on the application's intent, enabling richer and more informative confirmation dialogs, rather than looking at each transaction one by one. Wallets can also indicate their support for atomic execution of batches, allowing apps to make better decisions about how to structure their calls.
 
 For both sides, capabilities establish a foundation for iteratively adding new functionality over time to further improve and streamline the user experience.
 

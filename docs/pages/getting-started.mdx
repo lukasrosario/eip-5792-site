@@ -12,12 +12,16 @@ For a wallet to be EIP-5792 compliant, it must implement support for the four ne
 * ### `wallet_sendCalls`
 
   * Requests that a wallet submits a batch of calls. Apps can specify capabilities they want to use (like atomic batching or paymasters) and mark them as optional or required.
+  * Apps can specify whether they require atomic execution of calls using the `atomicRequired` field:
+    * If `true`, all calls must be executed atomically and contiguously
+    * If `false`, calls must be executed sequentially but may be interleaved with other transactions and some may fail independently
   * The wallet must reject requests that include unsupported required capabilities.
   * Apps can provide their own unique ID (up to 4096 bytes) for the batch, or let the wallet generate one.
 
 * ### `wallet_getCallsStatus`
 
   * Returns the status and receipts for a batch of calls.
+  * The `atomic` field indicates whether the wallet executed the calls atomically or not.
   * Status codes indicate the batch state:
     * 100 - Pending: Batch received but not completed
     * 200 - Confirmed: Batch included onchain without reverts
@@ -57,6 +61,7 @@ function App() {
 // @log:       }
 // @log:     },
 // @log:     "0x1": {
+// @log:       "atomic": true,
 // @log:       "auxiliaryFunds": {
 // @log:         "supported": true
 // @log:       }
@@ -102,7 +107,11 @@ const calls = [
 
 async function executeTransactions() {
   try {
-    const id = await walletClient.sendCalls({ account, calls })
+    const id = await walletClient.sendCalls({ 
+      account, 
+      calls,
+      atomicRequired: true // Require atomic execution
+    })
     return id
   } catch (error) {
     // Check for EIP-5792 unsupported method error (code 4200)
