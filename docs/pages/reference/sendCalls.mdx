@@ -62,6 +62,7 @@ An array with a single object that contains the following fields:
 * ### atomicRequired
   * `boolean`
   * Specifies whether the wallet must execute all calls atomically (in a single transaction) or not. If set to `true`, the wallet MUST execute all calls atomically and contiguously. If set to `false`, the wallet MUST execute calls sequentially (one after another), but they need not be contiguous (other transactions may be interleaved) and some calls may fail independently.
+  * If the wallet's `atomic` capability is `ready`, it MUST upgrade to `supported` before proceeding with atomic execution.
 
 * ### calls
   * `Call[]`

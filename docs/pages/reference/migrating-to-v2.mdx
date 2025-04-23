@@ -1,0 +1,234 @@
+# Migrating to 2.0.0
+
+During the EIP review process, there were changes to the initially proposed 1.0 version. This guide outlines the key changes between version 1.0 and the finalised 2.0.0 of EIP-5792, and provides guidance for migrating your implementation.
+
+## Major Changes
+
+### 1. Version Number
+
+The version number in requests has been updated from `"1.0"` to `"2.0.0"`. This change reflects the significant updates to the specification during the review phase. Subsequent updates will follow [SemVer](https://semver.org/).
+
+### 2. Atomic Capability
+
+The `atomicBatch` capability has been replaced with a more expressive `atomic` capability that has three states:
+
+- `supported`: The wallet will execute all calls atomically and contiguously
+- `ready`: The wallet is able to upgrade to `supported` pending user approval (e.g. via [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702))
+- `unsupported`: The wallet does not provide any atomicity or contiguity guarantees
+
+Example response:
+```json
+{
+  "0x1": {
+    "atomic": {
+      "status": "supported"
+    }
+  }
+}
+```
+
+### 3. Status Codes
+
+The string-based status codes (`"PENDING"`, `"CONFIRMED"`) have been replaced with numeric status codes:
+
+| Code | Description |
+|------|-------------|
+| 100  | Batch has been received by the wallet but has not completed execution onchain (pending) |
+| 200  | Batch has been included onchain without reverts, receipts array contains info of all calls (confirmed) |
+| 400  | Batch has not been included onchain and wallet will not retry (offchain failure) |
+| 500  | Batch reverted **completely** and only changes related to gas charge may have been included onchain (chain rules failure) |
+| 600  | Batch reverted **partially** and some changes related to batch calls may have been included onchain (partial chain rules failure) |
+
+### 4. Request Structure
+
+The `wallet_sendCalls` request structure has been updated:
+
+- `chainId` is now a top-level property instead of being per-call
+- Added `id` field for batch identification
+- Added `atomicRequired` field to specify atomic execution requirements
+- Removed per-call `chainId` fields
+
+Example request:
+```json
+{
+  "version": "2.0.0",
+  "chainId": "0x1",
+  "from": "0x...",
+  "calls": [
+    {
+      "to": "0x...",
+      "data": "0x...",
+      "value": "0x0"
+    }
+  ],
+  "capabilities": {
+    "atomic": {
+      "required": true
+    }
+  }
+}
+```
+
+### 5. Response Structure
+
+#### wallet_sendCalls Response
+
+The `wallet_sendCalls` response structure has been updated:
+
+- Changed from returning a simple string identifier to returning a structured object
+- Added `capabilities` field for capability-specific metadata
+- The `id` field is now part of a structured response rather than being returned directly as a string
+
+Version 1.0 response:
+```json
+"0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+```
+
+Version 2.0.0 response:
+```json
+{
+  "id": "0x00000000000000000000000000000000000000000000000000000000000000000e670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331",
+  "capabilities": {
+    "atomic": true
+  }
+}
+```
+
+#### wallet_getCallsStatus Response
+
+The `wallet_getCallsStatus` response structure has been updated:
+
+- Added `version` field
+- Added `id` field
+- Added `chainId` field
+- Added `atomic` field to indicate how the batch was executed
+- Changed status to numeric codes
+
+Example response:
+```json
+{
+  "version": "2.0.0",
+  "id": "0x...",
+  "chainId": "0x1",
+  "status": 200,
+  "atomic": true,
+  "receipts": [...]
+}
+```
+
+### 6. Additional Changes
+
+#### wallet_getCapabilities Parameters
+
+The `wallet_getCapabilities` method now accepts an optional array of chain IDs:
+
+Version 1.0:
+```json
+["0xd46e8dd67c5d32be8058bb8eb970870f07244567"]
+```
+
+Version 2.0.0:
+```json
+["0xd46e8dd67c5d32be8058bb8eb970870f07244567", ["0x2105", "0x14A34"]]
+```
+
+This allows apps to query capabilities for specific chains, rather than getting all capabilities for all chains.
+
+#### wallet_getCallsStatus Response Fields
+
+Additional fields have been added to the `wallet_getCallsStatus` response:
+
+- `version`: Indicates the version of the response format
+- `atomic`: Explicitly indicates whether the batch was executed atomically
+
+These fields help apps understand the format of the response and how the batch was executed.
+
+## Migration Guide
+
+### For Wallets
+
+1. Update your version number to `"2.0.0"` in all responses
+2. Replace `atomicBatch` capability with the new `atomic` capability
+3. Update status codes to use numeric values
+4. Implement the new request/response structures
+5. Add support for the `atomicRequired` field in `wallet_sendCalls`
+6. Ensure proper handling of the `id` field for batch identification
+7. Update `wallet_sendCalls` to return a structured response with `id` and `capabilities` fields
+8. Add support for chain-specific capability queries in `wallet_getCapabilities`
+9. Include `version` and `atomic` fields in `wallet_getCallsStatus` responses
+
+### For Apps
+
+> Note that Viem ^2.28.0 has been updated to support the latest specification
+
+1. Update your version number to `"2.0.0"` in all requests
+2. Update capability checks to use the new `atomic` capability format
+3. Update status code handling to use numeric values
+4. Update request/response structure handling
+5. Add support for the `atomicRequired` field when requiring atomic execution
+6. Implement proper handling of the `id` field for batch identification
+7. Update handling of `wallet_sendCalls` response to expect a structured object instead of a string
+8. Add support for chain-specific capability queries in `wallet_getCapabilities`
+9. Handle new `version` and `atomic` fields in `wallet_getCallsStatus` responses
+
+## Backward Compatibility
+
+While version 2.0.0 introduces significant changes, wallets and apps should maintain backward compatibility where possible:
+
+- Wallets should continue to accept version `"1.0"` requests and respond appropriately
+- Apps should be prepared to handle both old and new response formats
+- When in doubt, check the version number in responses to determine the format
+
+## Example Migration
+
+Here's an example of migrating a `wallet_sendCalls` request and response from version 1.0 to 2.0.0:
+
+Version 1.0:
+```json
+// Request
+{
+  "version": "1.0",
+  "from": "0x...",
+  "calls": [
+    {
+      "to": "0x...",
+      "data": "0x...",
+      "value": "0x0",
+      "chainId": "0x1"
+    }
+  ]
+}
+
+// Response
+"0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+```
+
+Version 2.0.0:
+```json
+// Request
+{
+  "version": "2.0.0",
+  "chainId": "0x1",
+  "from": "0x...",
+  "calls": [
+    {
+      "to": "0x...",
+      "data": "0x...",
+      "value": "0x0"
+    }
+  ],
+  "capabilities": {
+    "atomic": {
+      "required": true
+    }
+  }
+}
+
+// Response
+{
+  "id": "0x00000000000000000000000000000000000000000000000000000000000000000e670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331",
+  "capabilities": {
+    "atomic": true
+  }
+}
+``` 

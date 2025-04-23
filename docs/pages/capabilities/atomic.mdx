@@ -6,7 +6,13 @@ The `atomic` capability specifies how a wallet will execute batches of transacti
 
 ### Wallet
 
-If a wallet supports atomic execution of batches on a given chain, its response to a `wallet_getCapabilities` request should include an `atomic` field set to `true` for that chain. If the wallet does not support atomic execution, it should set `atomic` to `false`.
+The `atomic` capability has a `status` field that can take one of three values:
+
+* `supported`: The wallet will execute all calls atomically and contiguously
+* `ready`: The wallet is able to upgrade to `supported` pending user approval (e.g. via [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702))
+* `unsupported`: The wallet does not provide any atomicity or contiguity guarantees
+
+If the `atomic` capability is not present for a given chain, it means that the wallet does not support batching for that chain.
 
 #### Example
 
@@ -18,10 +24,14 @@ provider.request({
 })
 // @log: {
 // @log:   "0x2105": {
-// @log:     "atomic": true
+// @log:     "atomic": {
+// @log:       "status": "supported"
+// @log:     }
 // @log:   },
 // @log:   "0x14A34": {
-// @log:     "atomic": false
+// @log:     "atomic": {
+// @log:       "status": "unsupported"
+// @log:     }
 // @log:   }
 // @log: }
 ```
@@ -33,10 +43,22 @@ When sending a batch of calls using `wallet_sendCalls`, apps can specify their a
 * If `atomicRequired` is set to `true`:
   * The wallet MUST execute all calls atomically and contiguously
   * The wallet MUST reject the request if it cannot guarantee atomic execution
+  * If the wallet's `atomic` capability is `ready`, it MUST upgrade to `supported` before proceeding
 * If `atomicRequired` is set to `false`:
   * The wallet MUST execute calls sequentially (one after another)
   * The calls need not be contiguous (other transactions may be interleaved)
   * Some calls may fail independently
   * The wallet MAY still execute the batch atomically if it supports it
 
-Apps should check the wallet's capabilities using `wallet_getCapabilities` before sending requests with `atomicRequired: true` to ensure the wallet supports atomic execution on the target chain. 
+Apps should check the wallet's capabilities using `wallet_getCapabilities` before sending requests with `atomicRequired: true` to ensure the wallet supports atomic execution on the target chain.
+
+### Relationship with EIP-7702
+
+The `ready` status is particularly relevant for wallets that can upgrade to support atomic execution through [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702). When a wallet indicates `status: "ready"`, it means:
+
+1. The account is an EOA (Externally Owned Account)
+2. It can upgrade to a smart account that supports atomic execution via an EIP-7702 delegation
+3. The upgrade requires user approval
+4. Once upgraded, the wallet will support atomic execution of batches for that EOA
+
+This allows apps to request atomic execution even from EOAs, as long as the wallet is capable of upgrading to support it. 

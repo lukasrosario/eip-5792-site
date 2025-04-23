@@ -76,6 +76,10 @@ export default defineConfig({
           text: "wallet_showCallsStatus",
           link: "/reference/showCallsStatus",
         },
+        {
+          text: "Migrating to v2",
+          link: "/reference/migrating-to-v2",
+        },
       ],
     },
     {
