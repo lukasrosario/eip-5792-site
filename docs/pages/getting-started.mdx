@@ -153,7 +153,7 @@ For example, the following fetches the connected wallet's capabilities using wag
 // @filename: App.tsx
 import React from 'react'
 // ---cut---
-import { useCapabilities } from 'wagmi/experimental'
+import { useCapabilities } from 'wagmi'
 
 function App() {
   const { data: capabilities } = useCapabilities() // [!code hl]
