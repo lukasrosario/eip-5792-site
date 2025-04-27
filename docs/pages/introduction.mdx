@@ -2,9 +2,9 @@
 
 ## What is EIP-5792?
 
-[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) enables applications to ask a wallet to process a batch of onchain write calls and to check on the status of those calls. These calls can be enhanced by `capabilities` (such as paymasters), if they are supported by the wallet.
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) enables applications to ask a wallet to process a batch of onchain write calls and to check on the status of those calls. These calls can be enhanced by `capabilities` (such as atomic execution or paymasters), if they are supported by the wallet.
 
-More specifically, this introduces a `wallet_sendCalls` method (with additional methods to check the status of submitted calls and display call information).
+More specifically, this introduces a `wallet_sendCalls` method (with additional methods to check the status of submitted calls and display call information). Apps can specify whether they require atomic execution of calls using the `atomicRequired` field, and wallets can indicate their support for atomic execution through the `atomic` capability.
 
 Meanwhile `wallet_getCapabilities` can be called by applications to establish what capabilities are supported by the wallet. These capabilities can then be passed by applications when sending calls to be executed by the wallet.
 
@@ -14,7 +14,10 @@ End users will no longer need to manually execute multiple transactions one by o
 
 This obviously also simplifies things for app developers and designers, who will no longer need to create those complex interfaces. And app developers will no longer need to "guess" what a given wallet is capable of.
 
-For wallets, batched calls provide more context on the application's intent, enabling richer and more informative confirmation dialogs, rather than looking at each transaction one by one.
+For wallets, batched calls provide more context on the application's intent, enabling richer and more informative confirmation dialogs, rather than looking at each transaction one by one. Wallets can also indicate their support for atomic execution of batches through the `atomic` capability, which can have three states:
+- `supported`: The wallet will execute all calls atomically and contiguously
+- `ready`: The wallet is able to upgrade to `supported` pending user approval (e.g. via [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702))
+- `unsupported`: The wallet does not provide any atomicity or contiguity guarantees
 
 For both sides, capabilities establish a foundation for iteratively adding new functionality over time to further improve and streamline the user experience.
 
@@ -28,7 +31,7 @@ The time is now!
 
 ## What is the status of this EIP?
 
-This EIP is currently in "Review", and the team expect to move to "Final Call" soon. There is already significant support for the EIP across [wallets](/ecosystem/wallets) and [tools](/ecosystem/tools).
+This EIP is currently in "Last Call", with a deadline of May 5, 2025. There is already significant support for the EIP across [wallets](/ecosystem/wallets) and [tools](/ecosystem/tools).
 
 ## How can I get involved?
 

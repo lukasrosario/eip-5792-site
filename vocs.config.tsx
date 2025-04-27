@@ -76,6 +76,10 @@ export default defineConfig({
           text: "wallet_showCallsStatus",
           link: "/reference/showCallsStatus",
         },
+        {
+          text: "Migrating to v2",
+          link: "/reference/migrating-to-v2",
+        },
       ],
     },
     {
@@ -100,6 +104,10 @@ export default defineConfig({
       text: "Capabilities",
       collapsed: false,
       items: [
+        {
+          text: "atomic",
+          link: "/capabilities/atomic",
+        },
         {
           text: "paymasterService",
           link: "/capabilities/paymasterService",
